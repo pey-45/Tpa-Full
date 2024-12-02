@@ -16,7 +16,7 @@
 	"environment": "server",
 	"entrypoints": {
 		"main": [
-			"tpapey.Tpapey"
+			"tpapey.TpaPey"
 		],
 		"client": [
 			"tpapey.TpapeyClient"
