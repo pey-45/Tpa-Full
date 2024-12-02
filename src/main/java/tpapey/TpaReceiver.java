@@ -7,7 +7,7 @@ import net.minecraft.text.Text;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TpaManager {
+public class TpaReceiver {
     private static final Map<ServerPlayerEntity, ServerPlayerEntity> tpaRequests = new HashMap<>();
 
     public static void sendRequest(ServerPlayerEntity sender, ServerPlayerEntity target) {

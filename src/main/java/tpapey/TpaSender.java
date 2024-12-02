@@ -1,13 +1,16 @@
 package tpapey;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-public class TpaCommand {
+public class TpaSender {
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
 
         dispatcher.register(CommandManager.literal("voy")
@@ -25,13 +28,14 @@ public class TpaCommand {
     }
 
     private static int sendTpaRequest(ServerCommandSource source, ServerPlayerEntity target) {
-        TpaManager.sendRequest(source.getPlayer(), target);
+        TpaReceiver.sendRequest(source.getPlayer(), target);
         source.sendFeedback(() -> Text.literal("Solicitud enviada a " + target.getName().getString()), false);
+        ServerPlayNetworking.send(target, null);
         return 1;
     }
 
     private static int acceptTpaRequest(ServerCommandSource source) {
-        boolean success = TpaManager.acceptRequest(source.getPlayer());
+        boolean success = TpaReceiver.acceptRequest(source.getPlayer());
         if (success) {
             source.sendFeedback(() -> Text.literal("Solicitud aceptada."), false);
         } else {
@@ -41,7 +45,7 @@ public class TpaCommand {
     }
 
     private static int denyTpaRequest(ServerCommandSource source) {
-        boolean success = TpaManager.denyRequest(source.getPlayer());
+        boolean success = TpaReceiver.denyRequest(source.getPlayer());
         if (success) {
             source.sendFeedback(() -> Text.literal("Solicitud rechazada."), false);
         } else {

@@ -19,7 +19,7 @@
 			"tpapey.TpaPey"
 		],
 		"client": [
-			"tpapey.TpapeyClient"
+			"tpapey.TpaPeyClient"
 		]
 	},
 	"mixins": [
