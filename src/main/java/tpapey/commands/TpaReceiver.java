@@ -6,6 +6,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
 import tpapey.data.TpaMode;
 import tpapey.data.TpaRequest;
 
@@ -72,5 +73,9 @@ public class TpaReceiver {
 
     public static boolean denyRequest(ServerPlayerEntity target) {
         return tpaRequests.remove(target) != null;
+    }
+
+    public static void doTpaHome(ServerPlayerEntity sender, BlockPos target) {
+        sender.teleport(sender.getServerWorld(), target.getX(), target.getY(), target.getZ(), sender.getYaw(), sender.getPitch());
     }
 }

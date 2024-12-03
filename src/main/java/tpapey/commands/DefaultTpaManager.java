@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class DefaultTpaManager {
     private static final HashMap<UUID, UUID> playersDefaultTpa = new HashMap<>();
-    private static final File DATA_FILE = new File("config/tpa_default.json");
+    private static final File DATA_FILE = new File("config/tpa_defaults.json");
     private static final Gson GSON = new Gson();
 
     public static void saveData() {
