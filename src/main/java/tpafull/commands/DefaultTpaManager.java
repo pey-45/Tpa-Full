@@ -1,4 +1,4 @@
-package tpapey.commands;
+package tpafull.commands;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

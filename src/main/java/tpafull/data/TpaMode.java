@@ -1,4 +1,4 @@
-package tpapey.data;
+package tpafull.data;
 
 public enum TpaMode {
     TPA,

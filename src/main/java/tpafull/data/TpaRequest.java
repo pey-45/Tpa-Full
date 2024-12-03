@@ -1,4 +1,4 @@
-package tpapey.data;
+package tpafull.data;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 

@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "tpa-pey",
+	"id": "tpa-full",
 	"version": "${version}",
-	"name": "TPA by pey",
+	"name": "Tpa Full",
 	"description": "Teleportation mod by pey",
 	"authors": [
 		"Pablo Manzanares López (pey-45)"
@@ -12,20 +12,20 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/tpa-pey/icon.png",
+	"icon": "assets/tpa-full/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"tpapey.TpaPey"
+			"tpafull.TpaFull"
 		],
 		"client": [
-			"tpapey.TpaPeyClient"
+			"tpafull.TpaFullClient"
 		]
 	},
 	"mixins": [
-		"tpa-pey.mixins.json",
+		"tpa-full.mixins.json",
 		{
-			"config": "tpa-pey.client.mixins.json",
+			"config": "tpa-full.client.mixins.json",
 			"environment": "client"
 		}
 	],

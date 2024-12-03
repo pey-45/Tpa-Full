@@ -1,16 +1,13 @@
-package tpapey.commands;
+package tpafull.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import tpapey.data.Messages;
-import tpapey.data.TpaMode;
+import tpafull.data.Messages;
+import tpafull.data.TpaMode;
 
 import java.util.Objects;
 
@@ -19,9 +16,11 @@ public class TpaSender {
 
         dispatcher.register(CommandManager.literal("tpa")
                 .executes(context -> sendTpaRequest(context.getSource(), DefaultTpaManager.getDefaultTpa(Objects.requireNonNull(context.getSource().getPlayer())), TpaMode.TPA))
-                .then(CommandManager.argument("target", EntityArgumentType.player())
+                .then(CommandManager.literal("target")
                         .executes(context -> sendTpaRequest(context.getSource(), EntityArgumentType.getPlayer(context, "target"), TpaMode.TPA)))
         );
+
+        dispatcher.register(CommandManager.literal("lastdeath"));
 
         dispatcher.register(CommandManager.literal("tpahere")
                 .executes(context -> sendTpaRequest(context.getSource(), DefaultTpaManager.getDefaultTpa(Objects.requireNonNull(context.getSource().getPlayer())), TpaMode.TPAHERE))

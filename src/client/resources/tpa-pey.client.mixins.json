@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "tpapey.mixin.client",
+	"package": "tpafull.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"ExampleClientMixin"

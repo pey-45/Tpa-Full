@@ -1,14 +1,10 @@
-package tpapey.data;
+package tpafull.data;
 
-import com.jcraft.jorbis.Block;
 import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
-import java.text.Normalizer;
-import java.util.Formatter;
 import java.util.function.Function;
 
 public final class Messages {
@@ -48,7 +44,7 @@ public final class Messages {
     public static final Text REQUEST_ACCEPTED =
             Text.literal("Request accepted")
                     .styled(style -> style
-                            .withColor(Formatting.RED));
+                            .withColor(Formatting.GREEN));
 
     public static final Text REQUEST_REJECTED =
             Text.literal("Request rejected")
