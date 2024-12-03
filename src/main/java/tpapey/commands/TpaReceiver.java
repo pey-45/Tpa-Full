@@ -18,13 +18,21 @@ public class TpaReceiver {
         String message = mode == TpaMode.TPA ? " wants to teleport to you (tpa)" : " wants you to teleport to him (tpahere)";
 
         tpaRequests.put(target, new TpaRequest(sender, mode));
-        target.sendMessage(
-                Text.literal(sender.getName().getString() + message)
+
+        target.sendMessage(Text.literal(sender.getName().getString())
+                        .styled(style -> style
+                                .withColor(Formatting.AQUA))
+                        .append(Text.literal(message)
+                                .styled(style -> style
+                                        .withColor(Formatting.WHITE)
+                                )
+                        )
                         .append(Text.literal("\n"))
                         .append(
                                 Text.literal("[Accept]")
                                         .styled(style -> style
                                                 .withColor(Formatting.GREEN)
+                                                .withBold(true)
                                                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept"))
                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to accept")))
                                         )
@@ -34,12 +42,14 @@ public class TpaReceiver {
                                 Text.literal("[Deny]")
                                         .styled(style -> style
                                                 .withColor(Formatting.RED)
+                                                .withBold(true)
                                                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpadeny"))
                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to reject")))
                                         )
                         ),
                 false
         );
+
     }
 
     public static boolean acceptRequest(ServerPlayerEntity target) {
