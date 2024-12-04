@@ -10,6 +10,18 @@ import java.util.function.Function;
 public final class Messages {
     private Messages() {}
 
+    public static final Function<String, Text> TPA_REQUEST_SENT =
+            name -> Text.literal("Tpa request sent to ")
+                    .append(Text.literal(name).styled(style -> style
+                            .withColor(Formatting.AQUA)));
+
+
+    public static final Function<String, Text> TPAHERE_REQUEST_SENT =
+            name -> Text.literal("Tpahere request sent to ")
+                    .append(Text.literal(name).styled(style -> style
+                            .withColor(Formatting.AQUA)));
+
+
     public static final Text NO_DEFAULT_TARGET =
             Text.literal("No default tpa target specified\nUse ")
             .styled(style -> style.withColor(Formatting.RED))
@@ -35,11 +47,6 @@ public final class Messages {
 
     public static final Text DEFAULT_TARGET_REMOVED =
             Text.literal("Default tpa target removed");
-
-    public static final Function<String, Text> REQUEST_SENT =
-            name -> Text.literal("Request sent to ")
-                    .append(Text.literal(name).styled(style -> style
-                            .withColor(Formatting.AQUA)));
 
     public static final Text REQUEST_ACCEPTED =
             Text.literal("Request accepted")
