@@ -1,31 +1,29 @@
-package tpafull.playerdata;
+package tpafull.data;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class PlayerManager {
+public class BlockTpaManager {
     private final static HashMap<UUID, String> players = new HashMap<>();
     private static final File DATA_FILE = new File("config/tpafull/players.json");
     private static final Gson GSON = new Gson();
 
     public static void saveData() {
         if (!DATA_FILE.getParentFile().exists() && !DATA_FILE.getParentFile().mkdirs()) {
-            System.err.println("Could not create config folder " + DATA_FILE.getParentFile().getAbsolutePath() + " to save player data");
+            System.err.println("Could not create config folder " + DATA_FILE.getParentFile().getAbsolutePath() + " to save blocktpa data");
             return;
         }
 
         try (Writer writer = new FileWriter(DATA_FILE)) {
             GSON.toJson(players, writer);
         } catch (IOException e) {
-            System.err.println("Failed to save player data in file " + DATA_FILE.getAbsolutePath());
+            System.err.println("Failed to save blocktpa data in file " + DATA_FILE.getAbsolutePath());
         }
     }
 
@@ -41,7 +39,7 @@ public class PlayerManager {
                 players.putAll(loadedData);
             }
         } catch (IOException e) {
-            System.err.println("Failed to load player data from file " + DATA_FILE.getAbsolutePath());
+            System.err.println("Failed to load blocktpa data from file " + DATA_FILE.getAbsolutePath());
         }
     }
 
@@ -53,4 +51,3 @@ public class PlayerManager {
         return players.getOrDefault(player.getUuid(), null);
     }
 }
-

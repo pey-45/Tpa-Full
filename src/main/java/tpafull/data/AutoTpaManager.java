@@ -1,4 +1,4 @@
-package tpafull.playerdata;
+package tpafull.data;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
