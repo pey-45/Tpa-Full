@@ -1,4 +1,4 @@
-package tpafull.commands;
+package tpafull.playerdata;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class HomeManager {
     private final static HashMap<UUID, BlockPos> homes = new HashMap<>();
-    private static final File DATA_FILE = new File("config/homes.json");
+    private static final File DATA_FILE = new File("config/tpafull/homes.json");
     private static final Gson GSON = new Gson();
 
 
@@ -47,7 +47,6 @@ public class HomeManager {
 
     public static void setHome(ServerPlayerEntity player, BlockPos pos) {
         homes.put(player.getUuid(), pos);
-
     }
 
     public static BlockPos getHome(ServerPlayerEntity player) {

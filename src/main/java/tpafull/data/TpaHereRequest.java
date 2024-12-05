@@ -4,11 +4,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.UUID;
 
-public class TpaRequest {
+public class TpaHereRequest {
     private final UUID id;
     private final ServerPlayerEntity sender;
 
-    public TpaRequest(ServerPlayerEntity sender) {
+    public TpaHereRequest(ServerPlayerEntity sender) {
         this.id = UUID.randomUUID();
         this.sender = sender;
     }
