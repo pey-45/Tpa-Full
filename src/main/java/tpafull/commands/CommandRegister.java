@@ -11,68 +11,72 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.NotNull;
 import tpafull.data.TpaMode;
-import tpafull.data.TpaRequest;
-import tpafull.data.TpaRequestManager;
+import tpafull.managers.AutoTpaManager;
+import tpafull.managers.TpaBlockManager;
+import tpafull.managers.TpaRequestManager;
 import tpafull.utils.GlobalScheduler;
 
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 
 public class CommandRegister {
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
 
         dispatcher.register(CommandManager.literal("tpa")
-                .then(CommandManager.literal("target")
-                        .executes(context -> -1)));
+                .then(CommandManager.argument("target", EntityArgumentType.player())
+                        .executes(context -> sendTpaRequest(context.getSource(), EntityArgumentType.getPlayer(context, "target"), TpaMode.TPA))));
 
 
         dispatcher.register(CommandManager.literal("tpahere")
                 .then(CommandManager.argument("target", EntityArgumentType.player())
-                        .executes(context -> -1)));
+                        .executes(context -> sendTpaRequest(context.getSource(), EntityArgumentType.getPlayer(context, "target"), TpaMode.TPAHERE))));
 
 
         dispatcher.register(CommandManager.literal("tpaccept")
-                .executes(context -> -1)
-                .then(CommandManager.argument("sender", EntityArgumentType.player())
-                        .executes(context -> -1)));
+                .then(CommandManager.argument("requester", EntityArgumentType.player())
+                        .executes(context -> acceptTpaRequest(context.getSource(), EntityArgumentType.getPlayer(context, "requester")))));
 
 
         dispatcher.register(CommandManager.literal("tpadeny")
-                .executes(context -> -1)
-                .then(CommandManager.argument("sender", EntityArgumentType.player())
-                        .executes(context -> -1)));
+                .then(CommandManager.argument("requester", EntityArgumentType.player())
+                        .executes(context -> denyTpaRequest(context.getSource(), EntityArgumentType.getPlayer(context, "requester")))));
 
 
         dispatcher.register(CommandManager.literal("blocktpa")
                 .then(CommandManager.literal("block")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .executes(context -> -1)))
+                                .executes(context -> blockTpa(context.getSource(), EntityArgumentType.getPlayer(context, "player").getName().getString()))))
+                .then(CommandManager.literal("offline")
+                        .then(CommandManager.argument("playername", StringArgumentType.word())
+                                .executes(context -> unblockTpa(context.getSource(), StringArgumentType.getString(context, "playername")))))
                 .then(CommandManager.literal("unblock")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .executes(context -> -1))
+                                .executes(context -> unblockTpa(context.getSource(), EntityArgumentType.getPlayer(context, "player").getName().getString()))
                         .then(CommandManager.literal("offline")
-                                .then(CommandManager.argument("playername", EntityArgumentType.player())
-                                        .executes(context -> -1))))
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> unblockTpa(context.getSource(), StringArgumentType.getString(context, "playername")))))))
                 .then(CommandManager.literal("list")
-                        .executes(context -> -1)));
+                        .executes(context -> showBlockTpaList(context.getSource()))));
 
 
         dispatcher.register(CommandManager.literal("autotpa")
                 .then(CommandManager.literal("allow")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .executes(context -> -1)))
+                                .executes(context -> allowAutoTpa(context.getSource(), EntityArgumentType.getPlayer(context, "player").getName().getString()))))
+                        .then(CommandManager.literal("offline")
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> allowAutoTpa(context.getSource(), StringArgumentType.getString(context, "playername")))))
                 .then(CommandManager.literal("deny")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .executes(context -> -1))
+                                .executes(context -> denyAutoTpa(context.getSource(), EntityArgumentType.getPlayer(context, "player").getName().getString())))
                         .then(CommandManager.literal("offline")
-                                .then(CommandManager.argument("playername", EntityArgumentType.player())
-                                        .executes(context -> -1))))
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> denyAutoTpa(context.getSource(), StringArgumentType.getString(context, "playername"))))))
                 .then(CommandManager.literal("list")
-                        .executes(context -> -1)));
+                        .executes(context -> showAutoTpaList(context.getSource()))));
 
 
         dispatcher.register(CommandManager.literal("undo")
@@ -102,29 +106,32 @@ public class CommandRegister {
     }
 
 
-    private static int sendTpaRequest(ServerCommandSource source, ServerPlayerEntity target, TpaMode mode) {
+    private static int sendTpaRequest(@NotNull ServerCommandSource source, ServerPlayerEntity target, @NotNull TpaMode mode) {
         ServerPlayerEntity sender = source.getPlayer();
         Objects.requireNonNull(sender);
 
-        TpaRequest request = new TpaRequest(sender, mode);
+        if (TpaBlockManager.getBlocks(target).contains(sender.getName().getString())) {
+            sender.sendMessage(Text.literal("You are blocked by ")
+                    .styled(style -> style
+                            .withColor(Formatting.RED))
+                    .append(Text.literal(target.getName().getString())
+                            .styled(style -> style
+                                    .withColor(Formatting.AQUA))));
+            return -1;
+        }
 
-        // Get tpa/tpahere requests from the target depending on the mode
-        Deque<TpaRequest> targetRequests = TpaRequestManager.getRequestsFrom(target, mode);
-
-        // Remove any other request by sender
-        TpaRequestManager.removeRequestsSentBy(targetRequests, sender);
-
-        targetRequests.add(request);
+        // Add new request to the target, cleaning any other
+        TpaRequestManager.removePossibleRequest(sender, target);
+        TpaRequestManager.addRequest(sender, target, mode);
 
         // Schedule timeout
         GlobalScheduler.schedule(() -> {
-            if (targetRequests.remove(request)) {
-                String modeString = mode == TpaMode.TPA ? "Tpa" : "TpaHere";
-                sender.sendMessage(Text.literal(modeString + " request to " + target.getName().getString() + " timed out")
+            if (TpaRequestManager.removePossibleRequest(sender, target)) {
+                sender.sendMessage(Text.literal(mode + " request to " + target.getName().getString() + " timed out")
                         .styled(style -> style
                                 .withColor(Formatting.RED)));
 
-                sender.sendMessage(Text.literal(modeString + " request from " + sender.getName().getString() + " timed out")
+                target.sendMessage(Text.literal(mode + " request from " + sender.getName().getString() + " timed out")
                         .styled(style -> style
                                 .withColor(Formatting.RED)));
             }
@@ -152,90 +159,167 @@ public class CommandRegister {
                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to reject"))))),
                 false
         );
+        sender.sendMessage(Text.literal(mode + " request sent to ")
+                .append(Text.literal(target.getName().getString())
+                        .styled(style -> style
+                                .withColor(Formatting.AQUA))));
 
         return 1;
     }
 
 
-    private static int acceptTpaRequest(ServerCommandSource source, ServerPlayerEntity target) {
-        ServerPlayerEntity sender = source.getPlayer();
-        Objects.requireNonNull(sender);
+    private static int acceptTpaRequest(@NotNull ServerCommandSource source, @NotNull ServerPlayerEntity requester) {
+        ServerPlayerEntity acceptor = source.getPlayer();
+        Objects.requireNonNull(acceptor);
 
-        if (!target.networkHandler.isConnectionOpen()) {
-            sender.sendMessage(Text.literal(target.getName() + "is not connected")
+        // Request does no longer exist
+        if (!TpaRequestManager.removePossibleRequest(requester, acceptor)) {
+            acceptor.sendMessage(Text.literal("No pending requests from " + requester.getName()));
+            return -1;
+        }
+
+        // Teleport
+        TpaMode mode = TpaRequestManager.getModeFromRequest(requester, acceptor);
+
+        if (mode == null) {
+            acceptor.sendMessage(Text.literal("Unexpected error")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
             return -1;
         }
 
-        TpaRequest request = TpaRequestManager.findRequest(sender, target);
-        if (!(request = TpaRequestManager.removeRequestsSentBy(TpaRequestManager.getRequestsFrom(sender, mode), target))) {
-            sender.sendMessage(Text.literal("No pending requests"));
+        if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPA) {
+            requester.teleport(acceptor.getServerWorld(), acceptor.getX(), acceptor.getY(), acceptor.getZ(), acceptor.getYaw(), acceptor.getPitch());
+        } else if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPAHERE) {
+            acceptor.teleport(requester.getServerWorld(), requester.getX(), requester.getY(), requester.getZ(), requester.getYaw(), requester.getPitch());
         }
 
+        requester.sendMessage(Text.literal("Request accepted!")
+                .styled(style -> style
+                        .withColor(Formatting.GREEN)));
 
-        if (mode == TpaMode.TPA) {
-            target.teleport(sender.getServerWorld(), sender.getX(), sender.getY(), sender.getZ(), sender.getYaw(), sender.getPitch());
-            TpaRequestManager.cleanAllRequestsSentBy(target);
-        } else {
-            sender.teleport(target.getServerWorld(), target.getX(), target.getY(), target.getZ(), target.getYaw(), target.getPitch());
-        }
+        acceptor.sendMessage(Text.literal("Request accepted!")
+                .styled(style -> style
+                        .withColor(Formatting.GREEN)));
+
+        TpaRequestManager.removeAllRequestsFrom(requester);
 
         return 1;
     }
 
-    private static int denyTpaRequest(ServerCommandSource source, ServerPlayerEntity target) {
-        ServerPlayerEntity sender = source.getPlayer();
-        Objects.requireNonNull(sender);
+    private static int denyTpaRequest(ServerCommandSource source, ServerPlayerEntity requester) {
+        ServerPlayerEntity acceptor = source.getPlayer();
+        Objects.requireNonNull(acceptor);
 
-        if (!target.networkHandler.isConnectionOpen()) {
-            sender.sendMessage(Text.literal(target.getName() + "is not connected")
-                    .styled(style -> style
-                            .withColor(Formatting.RED)));
+        // Request does no longer exist
+        if (!TpaRequestManager.removePossibleRequest(requester, acceptor)) {
+            acceptor.sendMessage(Text.literal("No pending requests"));
             return -1;
         }
 
+        requester.sendMessage(Text.literal("Request rejected")
+                .styled(style -> style
+                        .withColor(Formatting.RED)));
 
+        acceptor.sendMessage(Text.literal("Request rejected")
+                .styled(style -> style
+                        .withColor(Formatting.RED)));
+
+        return 1;
     }
 
 
-    private static int blockTpa(ServerCommandSource source, ServerPlayerEntity target) {
-        return -1;
+    private static int blockTpa(ServerCommandSource source, String blockedName) {
+        ServerPlayerEntity blocker = source.getPlayer();
+        Objects.requireNonNull(blocker);
+
+        String message = TpaBlockManager.block(blocker, blockedName) ? " successfully unblocked" : " is already blocked";
+
+        blocker.sendMessage(Text.literal(blockedName)
+                .styled(style -> style
+                        .withColor(Formatting.AQUA))
+                .append(Text.literal(message)
+                        .styled(style -> style
+                                .withColor(Formatting.GREEN))));
+
+        return 1;
     }
 
 
-    private static int unblockTpa(ServerCommandSource source, ServerPlayerEntity target) {
-        return -1;
-    }
+    private static int unblockTpa(ServerCommandSource source, String blockedName) {
+        ServerPlayerEntity blocker = source.getPlayer();
+        Objects.requireNonNull(blocker);
 
+        String message = TpaBlockManager.unblock(blocker, blockedName) ? " successfully unblocked" : " was already unblocked";
 
-    private static int unblockTpaOffline(ServerCommandSource source, String targetname) {
-        return -1;
+        blocker.sendMessage(Text.literal(blockedName)
+                .styled(style -> style
+                        .withColor(Formatting.AQUA))
+                .append(Text.literal(message)
+                        .styled(style -> style
+                                .withColor(Formatting.GREEN))));
+
+        return 1;
     }
 
 
     private static int showBlockTpaList(ServerCommandSource source) {
-        return -1;
+        ServerPlayerEntity blocker = source.getPlayer();
+        Objects.requireNonNull(blocker);
+
+        Set<String> blocks = TpaBlockManager.getBlocks(source.getPlayer());
+
+        blocker.sendMessage(Text.literal("You have blocked: ")
+                .append(Text.literal(String.join(", ", blocks))));
+
+        return 1;
     }
 
 
-    private static int allowAutoTpa(ServerCommandSource source, ServerPlayerEntity target) {
-        return -1;
+    private static int allowAutoTpa(ServerCommandSource source, String allowedName) {
+        ServerPlayerEntity allower = source.getPlayer();
+        Objects.requireNonNull(allower);
+
+        String message = AutoTpaManager.add(allower, allowedName) ? " successfully allowed to auto tpa you" : " is already allowed to auto tpa you";
+
+        allower.sendMessage(Text.literal(allowedName)
+                .styled(style -> style
+                        .withColor(Formatting.AQUA))
+                .append(Text.literal(message)
+                        .styled(style -> style
+                                .withColor(Formatting.GREEN))));
+
+        return 1;
     }
 
 
-    private static int denyAutoTpa(ServerCommandSource source, ServerPlayerEntity target) {
-        return -1;
-    }
+    private static int denyAutoTpa(ServerCommandSource source, String allowedName) {
+        ServerPlayerEntity allower = source.getPlayer();
+        Objects.requireNonNull(allower);
 
+        String message = AutoTpaManager.remove(allower, allowedName) ? " successfully denied to auto tpa you" : " was already not allowed to auto tpa you";
 
-    private static int denyAutoTpaOffline(ServerCommandSource source, String targetname) {
-        return -1;
+        allower.sendMessage(Text.literal(allowedName)
+                .styled(style -> style
+                        .withColor(Formatting.AQUA))
+                .append(Text.literal(message)
+                        .styled(style -> style
+                                .withColor(Formatting.GREEN))));
+
+        return 1;
     }
 
 
     private static int showAutoTpaList(ServerCommandSource source) {
-        return -1;
+        ServerPlayerEntity allower = source.getPlayer();
+        Objects.requireNonNull(allower);
+
+        Set<String> allowed = AutoTpaManager.getAllowed(source.getPlayer());
+
+        allower.sendMessage(Text.literal("You have allowed to auto tpa you: ")
+                .append(Text.literal(String.join(", ", allowed))));
+
+        return 1;
     }
 
 

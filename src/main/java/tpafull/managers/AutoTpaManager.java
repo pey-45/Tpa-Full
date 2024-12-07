@@ -1,4 +1,4 @@
-package tpafull.data;
+package tpafull.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,8 +9,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class AutoTpaManager {
-    private final static HashMap<UUID, Set<UUID>> autoTpas = new HashMap<>();
-    private static final File DATA_FILE = new File("config/tpafull/autotpas.json");
+    private final static HashMap<UUID, Set<String>> allowedAutoTpa = new HashMap<>();
+    private static final File DATA_FILE = new File("config/tpafull/auto_tpa_allowed.json");
     private static final Gson GSON = new Gson();
 
 
@@ -21,7 +21,7 @@ public class AutoTpaManager {
         }
 
         try (Writer writer = new FileWriter(DATA_FILE)) {
-            GSON.toJson(autoTpas, writer);
+            GSON.toJson(allowedAutoTpa, writer);
         } catch (IOException e) {
             System.err.println("Failed to save AutoTpa data in file " + DATA_FILE.getAbsolutePath());
         }
@@ -33,26 +33,27 @@ public class AutoTpaManager {
         }
 
         try (Reader reader = new FileReader(DATA_FILE)) {
-            Type type = new TypeToken<HashMap<UUID, Set<UUID>>>() {}.getType();
-            HashMap<UUID, Set<UUID>> loadedData = GSON.fromJson(reader, type);
+            Type type = new TypeToken<HashMap<UUID, Set<String>>>() {}.getType();
+            HashMap<UUID, Set<String>> loadedData = GSON.fromJson(reader, type);
             if (loadedData != null) {
-                autoTpas.putAll(loadedData);
+                allowedAutoTpa.putAll(loadedData);
             }
         } catch (IOException e) {
             System.err.println("Failed to load AutoTpa data from file " + DATA_FILE.getAbsolutePath());
         }
     }
 
-    public static void setAutoTpa(ServerPlayerEntity sender, UUID target) {
-        Set<UUID> currentPlayerAutoTpas = autoTpas.computeIfAbsent(sender.getUuid(), k -> new HashSet<>());
-        currentPlayerAutoTpas.add(target);
+    public static boolean add(ServerPlayerEntity sender, String target) {
+        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getUuid(), k -> new HashSet<>());
+        return currentPlayerAutoTpas.add(target);
     }
 
-    public static Set<UUID> getAutoTpa(ServerPlayerEntity player) {
-        return autoTpas.getOrDefault(player.getUuid(), Collections.emptySet());
+    public static boolean remove(ServerPlayerEntity sender, String target) {
+        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getUuid(), k -> new HashSet<>());
+        return currentPlayerAutoTpas.remove(target);
     }
 
-    public static void removeAutoTpa(ServerPlayerEntity player) {
-        autoTpas.remove(player.getUuid());
+    public static Set<String> getAllowed(ServerPlayerEntity blocker) {
+        return allowedAutoTpa.get(blocker.getUuid());
     }
 }

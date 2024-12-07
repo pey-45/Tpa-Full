@@ -2,11 +2,8 @@ package tpafull.events;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
-import tpafull.data.PlayerManager;
-import tpafull.data.TpaRequest;
-import tpafull.data.TpaRequestManager;
-
-import java.util.Deque;
+import tpafull.managers.PlayerManager;
+import tpafull.managers.TpaRequestManager;
 
 public class PlayerEventHandler {
     public static void register() {

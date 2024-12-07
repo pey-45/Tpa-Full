@@ -1,4 +1,4 @@
-package tpafull.data;
+package tpafull.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
