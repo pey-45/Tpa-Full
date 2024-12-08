@@ -3,7 +3,7 @@ package tpafull.managers;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class HomeManager {
-    private final static HashMap<UUID, BlockPos> homes = new HashMap<>();
+    private final static HashMap<UUID, GlobalPos> homes = new HashMap<>();
     private static final File DATA_FILE = new File("config/tpafull/homes.json");
     private static final Gson GSON = new Gson();
 
@@ -35,8 +35,8 @@ public class HomeManager {
         }
 
         try (Reader reader = new FileReader(DATA_FILE)) {
-            Type type = new TypeToken<HashMap<UUID, BlockPos>>() {}.getType();
-            HashMap<UUID, BlockPos> loadedData = GSON.fromJson(reader, type);
+            Type type = new TypeToken<HashMap<UUID, GlobalPos>>() {}.getType();
+            HashMap<UUID, GlobalPos> loadedData = GSON.fromJson(reader, type);
             if (loadedData != null) {
                 homes.putAll(loadedData);
             }
@@ -45,11 +45,11 @@ public class HomeManager {
         }
     }
 
-    public static void setHome(ServerPlayerEntity player, BlockPos pos) {
+    public static void setHome(ServerPlayerEntity player, GlobalPos pos) {
         homes.put(player.getUuid(), pos);
     }
 
-    public static BlockPos getHome(ServerPlayerEntity player) {
+    public static GlobalPos getHome(ServerPlayerEntity player) {
         return homes.getOrDefault(player.getUuid(), null);
     }
 

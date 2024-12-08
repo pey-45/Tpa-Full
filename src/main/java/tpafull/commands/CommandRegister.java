@@ -10,12 +10,10 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import org.jetbrains.annotations.NotNull;
 import tpafull.data.TpaMode;
-import tpafull.managers.AutoTpaManager;
-import tpafull.managers.TpaBlockManager;
-import tpafull.managers.TpaRequestManager;
+import tpafull.managers.*;
 import tpafull.utils.GlobalScheduler;
 
 
@@ -79,7 +77,7 @@ public class CommandRegister {
                         .executes(context -> showAutoTpaList(context.getSource()))));
 
 
-        dispatcher.register(CommandManager.literal("undo")
+        dispatcher.register(CommandManager.literal("undotp")
                 .executes(context -> -1));
 
 
@@ -323,18 +321,64 @@ public class CommandRegister {
     }
 
 
-    private static int undoTpa(ServerCommandSource source) {
-        return -1;
+    private static int undoTp(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
+
+        if (LastTpManager.hasLastTp(player)) {
+            player.sendMessage(Text.literal("No teleport to undo")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
+
+        player.teleport(LastTpManager.getWorld(player), LastTpManager.getX(player), LastTpManager.getY(player), LastTpManager.getZ(player), player.getYaw(), player.getPitch());
+        LastTpManager.removeLastTp(player);
+
+        return 1;
     }
 
+    private static int tpLastDeath(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
 
-    private static int tpaLastDeath(ServerCommandSource source) {
-        return -1;
+        if (LastDeathManager.hasLastDeath(player)) {
+            player.sendMessage(Text.literal("No last death position to teleport to")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
+
+        double x = LastDeathManager.getX(player);
+        double y = LastDeathManager.getY(player);
+        double z = LastDeathManager.getZ(player);
+
+        player.teleport(LastDeathManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
+        LastDeathManager.removeLastDeath(player);
+
+        return 1;
     }
 
 
     private static int showLastDeath(ServerCommandSource source) {
-        return -1;
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
+
+        if (!LastDeathManager.hasLastDeath(player)) {
+            player.sendMessage(Text.literal("No last death position")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
+
+        double x = LastDeathManager.getX(player);
+        double y = LastDeathManager.getY(player);
+        double z = LastDeathManager.getZ(player);
+        String world = Objects.requireNonNull(Objects.requireNonNull(LastDeathManager.getWorld(player)).getRegistryKey().getValue().getPath());
+
+        player.sendMessage(Text.literal("Last death: " + x + ", " + y + ", " + z + " in " + world));
+
+        return 1;
     }
 
 
@@ -348,7 +392,7 @@ public class CommandRegister {
     }
 
 
-    private static int setHome(ServerCommandSource source, BlockPos pos) {
+    private static int setHome(ServerCommandSource source, GlobalPos pos) {
         return -1;
     }
 
