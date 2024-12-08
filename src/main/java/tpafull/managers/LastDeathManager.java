@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LastDeathManager {
-    private static final ConcurrentHashMap<ServerPlayerEntity, GlobalPos> lastDeaths= new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<ServerPlayerEntity, GlobalPos> lastDeaths = new ConcurrentHashMap<>();
 
     public static boolean hasLastDeath(ServerPlayerEntity player) {
         return lastDeaths.containsKey(player);

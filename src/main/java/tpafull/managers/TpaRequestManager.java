@@ -6,15 +6,16 @@ import tpafull.data.TpaMode;
 import tpafull.data.TpaRequest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class TpaRequestManager {
-    private static final ConcurrentHashMap<ServerPlayerEntity, ConcurrentLinkedDeque<TpaRequest>> tpaRequests = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<ServerPlayerEntity, ConcurrentLinkedDeque<TpaRequest>> tpaHereRequests = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<ServerPlayerEntity, List<TpaRequest>> tpaRequests = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<ServerPlayerEntity, List<TpaRequest>> tpaHereRequests = new ConcurrentHashMap<>();
 
     public static boolean removePossibleRequest(ServerPlayerEntity sender, ServerPlayerEntity target) {
-        ConcurrentLinkedDeque<TpaRequest> requests = tpaRequests.get(target);
+        List<TpaRequest> requests = tpaRequests.get(target);
 
         if (requests != null) {
             for (TpaRequest request : requests) {
@@ -28,7 +29,7 @@ public class TpaRequestManager {
             }
         }
 
-        ConcurrentLinkedDeque<TpaRequest> hereRequests = tpaHereRequests.get(target);
+        List<TpaRequest> hereRequests = tpaHereRequests.get(target);
         if (hereRequests != null) {
             for (TpaRequest request : hereRequests) {
                 if (request.getSender() == sender) {
@@ -45,29 +46,25 @@ public class TpaRequestManager {
     }
 
 
-    public static boolean removeAllRequestsFrom(ServerPlayerEntity sender) {
+    public static void removeAllRequestsFrom(ServerPlayerEntity sender) {
 
-        for (HashMap.Entry<ServerPlayerEntity, ConcurrentLinkedDeque<TpaRequest>> entry : tpaRequests.entrySet()) {
+        for (HashMap.Entry<ServerPlayerEntity, List<TpaRequest>> entry : tpaRequests.entrySet()) {
             ServerPlayerEntity target = entry.getKey();
-            ConcurrentLinkedDeque<TpaRequest> requests = entry.getValue();
+            List<TpaRequest> requests = entry.getValue();
             requests.removeIf(request -> request.getSender() == sender);
             if (requests.isEmpty()) {
                 tpaRequests.remove(target);
             }
-            return true;
         }
 
-        for (HashMap.Entry<ServerPlayerEntity, ConcurrentLinkedDeque<TpaRequest>> entry : tpaHereRequests.entrySet()) {
+        for (HashMap.Entry<ServerPlayerEntity, List<TpaRequest>> entry : tpaHereRequests.entrySet()) {
             ServerPlayerEntity target = entry.getKey();
-            ConcurrentLinkedDeque<TpaRequest> requests = entry.getValue();
+            List<TpaRequest> requests = entry.getValue();
             requests.removeIf(request -> request.getSender() == sender);
             if (requests.isEmpty()) {
                 tpaHereRequests.remove(target);
             }
-            return true;
         }
-
-        return false;
     }
 
 
@@ -92,10 +89,10 @@ public class TpaRequestManager {
     }
 
     public static void cleanAllRequests(ServerPlayerEntity sender) {
-        for (ConcurrentLinkedDeque<TpaRequest> requests : tpaRequests.values()) {
+        for (List<TpaRequest> requests : tpaRequests.values()) {
             requests.removeIf(targetTpaRequest -> targetTpaRequest.getSender() == sender);
         }
-        for (ConcurrentLinkedDeque<TpaRequest> requests : tpaHereRequests.values()) {
+        for (List<TpaRequest> requests : tpaHereRequests.values()) {
             requests.removeIf(targetTpaRequest -> targetTpaRequest.getSender() == sender);
         }
     }

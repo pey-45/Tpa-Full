@@ -78,13 +78,13 @@ public class CommandRegister {
 
 
         dispatcher.register(CommandManager.literal("undotp")
-                .executes(context -> -1));
+                .executes(context -> undoTp(context.getSource())));
 
 
         dispatcher.register(CommandManager.literal("lastdeath")
-                .executes(context -> -1)
+                .executes(context -> tpLastDeath(context.getSource()))
                 .then(CommandManager.literal("where")
-                        .executes(context -> -1)));
+                        .executes(context -> showLastDeath(context.getSource()))));
 
 
         dispatcher.register(CommandManager.literal("home")
