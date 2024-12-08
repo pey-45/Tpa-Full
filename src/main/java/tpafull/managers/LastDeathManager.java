@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LastDeathManager {
     private static final ConcurrentHashMap<ServerPlayerEntity, GlobalPos> lastDeaths = new ConcurrentHashMap<>();
 
-    public static boolean hasLastDeath(ServerPlayerEntity player) {
-        return lastDeaths.containsKey(player);
-    }
-
     public static void saveLastDeath(ServerPlayerEntity player, GlobalPos pos) {
         lastDeaths.put(player, pos);
+    }
+
+    public static boolean hasLastDeath(ServerPlayerEntity player) {
+        return lastDeaths.containsKey(player);
     }
 
     public static ServerWorld getWorld(ServerPlayerEntity player) {

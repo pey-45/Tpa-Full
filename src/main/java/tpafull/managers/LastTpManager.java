@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LastTpManager {
     private static final ConcurrentHashMap<ServerPlayerEntity, GlobalPos> lastTps = new ConcurrentHashMap<>();
 
-    public static boolean hasLastTp(ServerPlayerEntity player) {
-        return lastTps.containsKey(player);
-    }
-
     public static void saveLastTp(ServerPlayerEntity player, GlobalPos pos) {
         lastTps.put(player, pos);
+    }
+
+    public static boolean hasLastTp(ServerPlayerEntity player) {
+        return lastTps.containsKey(player);
     }
 
     public static ServerWorld getWorld(ServerPlayerEntity player) {

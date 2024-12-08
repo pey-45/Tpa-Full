@@ -88,11 +88,11 @@ public class CommandRegister {
 
 
         dispatcher.register(CommandManager.literal("home")
-                .executes(context -> -1)
+                .executes(context -> tpHome(context.getSource()))
                 .then(CommandManager.literal("where")
-                        .executes(context -> -1))
+                        .executes(context -> showHome(context.getSource())))
                 .then(CommandManager.literal("set")
-                        .executes(context -> -1)));
+                        .executes(context -> setHome(context.getSource()))));
 
 
         dispatcher.register(CommandManager.literal("tpafull")
@@ -382,18 +382,63 @@ public class CommandRegister {
     }
 
 
-    private static int tpaHome(ServerCommandSource source) {
-        return -1;
+    private static int tpHome(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
+
+        if (!HomeManager.hasHome(player)) {
+            player.sendMessage(Text.literal("No home set")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
+
+        double x = HomeManager.getX(player);
+        double y = HomeManager.getY(player);
+        double z = HomeManager.getZ(player);
+
+        player.teleport(HomeManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
+        HomeManager.removeHome(player);
+
+        return 1;
     }
 
 
     private static int showHome(ServerCommandSource source) {
-        return -1;
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
+
+        if (!HomeManager.hasHome(player)) {
+            player.sendMessage(Text.literal("No home set")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
+
+        double x = HomeManager.getX(player);
+        double y = HomeManager.getY(player);
+        double z = HomeManager.getZ(player);
+        String world = Objects.requireNonNull(Objects.requireNonNull(HomeManager.getWorld(player)).getRegistryKey().getValue().getPath());
+
+        player.sendMessage(Text.literal("Home: " + x + ", " + y + ", " + z + " in " + world));
+
+        return 1;
     }
 
 
-    private static int setHome(ServerCommandSource source, GlobalPos pos) {
-        return -1;
+    private static int setHome(ServerCommandSource source) {
+        ServerPlayerEntity player = source.getPlayer();
+        Objects.requireNonNull(player);
+
+        GlobalPos pos = GlobalPos.create(player.getServerWorld().getRegistryKey(), player.getBlockPos());
+
+        HomeManager.setHome(player, pos);
+
+        player.sendMessage(Text.literal("Home set")
+                .styled(style -> style
+                        .withColor(Formatting.RED)));
+
+        return 1;
     }
 
 

@@ -2,12 +2,16 @@ package tpafull.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.GlobalPos;
+import net.minecraft.world.World;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class HomeManager {
@@ -49,8 +53,31 @@ public class HomeManager {
         homes.put(player.getUuid(), pos);
     }
 
-    public static GlobalPos getHome(ServerPlayerEntity player) {
-        return homes.getOrDefault(player.getUuid(), null);
+    public static boolean hasHome(ServerPlayerEntity player) {
+        return homes.containsKey(player.getUuid());
+    }
+
+    public static ServerWorld getWorld(ServerPlayerEntity player) {
+        GlobalPos globalPos = homes.get(player.getUuid());
+        if (globalPos == null) {
+            return null;
+        }
+
+        RegistryKey<World> dimensionKey = globalPos.dimension();
+
+        return Objects.requireNonNull(player.getServer()).getWorld(dimensionKey);
+    }
+
+    public static double getX(ServerPlayerEntity player) {
+        return homes.get(player.getUuid()).pos().getX();
+    }
+
+    public static double getY(ServerPlayerEntity player) {
+        return homes.get(player.getUuid()).pos().getY();
+    }
+
+    public static double getZ(ServerPlayerEntity player) {
+        return homes.get(player.getUuid()).pos().getZ();
     }
 
     public static void removeHome(ServerPlayerEntity player) {
