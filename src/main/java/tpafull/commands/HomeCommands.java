@@ -21,12 +21,15 @@ public class HomeCommands {
                                 context.getSource().getPlayer())))
                 .then(CommandManager.literal("set")
                         .executes(context -> setHome(
+                                Objects.requireNonNull(context.getSource().getPlayer()))))
+                .then(CommandManager.literal("remove")
+                        .executes(context -> removeHome(
                                 Objects.requireNonNull(context.getSource().getPlayer())))));
     }
 
 
     private static int tpHome(ServerPlayerEntity player) {
-        if (!HomeManager.hasHome(player)) {
+        if (HomeManager.hasNotHome(player)) {
             player.sendMessage(Text.literal("No home set")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
@@ -38,26 +41,29 @@ public class HomeCommands {
         double z = HomeManager.getZ(player);
 
         player.teleport(HomeManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
-        HomeManager.removeHome(player);
+
+        player.sendMessage(Text.literal("Teleporting home...")
+                .styled(style -> style
+                        .withColor(Formatting.GREEN)));
 
         return 1;
     }
 
 
     private static int showHome(ServerPlayerEntity player) {
-        if (!HomeManager.hasHome(player)) {
+        if (HomeManager.hasNotHome(player)) {
             player.sendMessage(Text.literal("No home set")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
             return -1;
         }
 
-        double x = HomeManager.getX(player);
-        double y = HomeManager.getY(player);
-        double z = HomeManager.getZ(player);
+        int x = (int) HomeManager.getX(player);
+        int y = (int) HomeManager.getY(player);
+        int z = (int) HomeManager.getZ(player);
         String world = Objects.requireNonNull(Objects.requireNonNull(HomeManager.getWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Home: " + x + ", " + y + ", " + z + " in " + world));
+        player.sendMessage(Text.literal("Home is at " + x + ", " + y + ", " + z + " in " + world));
 
         return 1;
     }
@@ -70,7 +76,17 @@ public class HomeCommands {
 
         player.sendMessage(Text.literal("Home set")
                 .styled(style -> style
-                        .withColor(Formatting.RED)));
+                        .withColor(Formatting.GREEN)));
+
+        return 1;
+    }
+
+    private static int removeHome(ServerPlayerEntity player) {
+        HomeManager.removeHome(player);
+
+        player.sendMessage(Text.literal("Home removed")
+                .styled(style -> style
+                        .withColor(Formatting.GREEN)));
 
         return 1;
     }

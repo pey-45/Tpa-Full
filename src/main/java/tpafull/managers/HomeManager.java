@@ -53,8 +53,8 @@ public class HomeManager {
         homes.put(player.getUuid(), pos);
     }
 
-    public static boolean hasHome(ServerPlayerEntity player) {
-        return homes.containsKey(player.getUuid());
+    public static boolean hasNotHome(ServerPlayerEntity player) {
+        return !homes.containsKey(player.getUuid());
     }
 
     public static ServerWorld getWorld(ServerPlayerEntity player) {

@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import tpafull.managers.AutoTpaManager;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class AutoTpaCommands {
@@ -18,22 +19,22 @@ public class AutoTpaCommands {
                 .then(CommandManager.literal("allow")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> allowAutoTpa(
-                                        context.getSource().getPlayer(),
-                                        EntityArgumentType.getPlayer(context, "player").getName().getString()))))
-                .then(CommandManager.literal("offline")
-                        .then(CommandManager.argument("playername", StringArgumentType.word())
-                                .executes(context -> allowAutoTpa(
-                                        context.getSource().getPlayer(),
-                                        StringArgumentType.getString(context, "playername")))))
+                                        Objects.requireNonNull(context.getSource().getPlayer()),
+                                        EntityArgumentType.getPlayer(context, "player").getName().getString())))
+                        .then(CommandManager.literal("offline")
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> allowAutoTpa(
+                                                Objects.requireNonNull(context.getSource().getPlayer()),
+                                                StringArgumentType.getString(context, "playername"))))))
                 .then(CommandManager.literal("deny")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> denyAutoTpa(
-                                        context.getSource().getPlayer(),
+                                        Objects.requireNonNull(context.getSource().getPlayer()),
                                         EntityArgumentType.getPlayer(context, "player").getName().getString())))
                         .then(CommandManager.literal("offline")
                                 .then(CommandManager.argument("playername", StringArgumentType.word())
                                         .executes(context -> denyAutoTpa(
-                                                context.getSource().getPlayer(),
+                                                Objects.requireNonNull(context.getSource().getPlayer()),
                                                 StringArgumentType.getString(context, "playername"))))))
                 .then(CommandManager.literal("list")
                         .executes(context -> showAutoTpaList(
@@ -42,28 +43,40 @@ public class AutoTpaCommands {
 
 
     private static int allowAutoTpa(ServerPlayerEntity allower, String allowedName) {
-        String message = AutoTpaManager.add(allower, allowedName) ? " successfully allowed to auto tpa you" : " is already allowed to auto tpa you";
+        if (Objects.equals(allower.getName().getString(), allowedName)) {
+            allower.sendMessage(Text.literal("Try with someone else")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
 
-        allower.sendMessage(Text.literal(allowedName)
+        String message = AutoTpaManager.add(allower, allowedName)
+                ? "Successfully allowed " + allowedName + " to auto tpa you"
+                : allowedName + " is already allowed to auto tpa you";
+
+        allower.sendMessage(Text.literal(message)
                 .styled(style -> style
-                        .withColor(Formatting.AQUA))
-                .append(Text.literal(message)
-                        .styled(style -> style
-                                .withColor(Formatting.GREEN))));
+                        .withColor(Formatting.GREEN)));
 
         return 1;
     }
 
 
     private static int denyAutoTpa(ServerPlayerEntity allower, String allowedName) {
-        String message = AutoTpaManager.remove(allower, allowedName) ? " successfully denied to auto tpa you" : " was already not allowed to auto tpa you";
+        if (Objects.equals(allower.getName().getString(), allowedName)) {
+            allower.sendMessage(Text.literal("Try with someone else")
+                    .styled(style -> style
+                            .withColor(Formatting.RED)));
+            return -1;
+        }
 
-        allower.sendMessage(Text.literal(allowedName)
+        String message = AutoTpaManager.remove(allower, allowedName)
+                ? "Successfully denied " + allowedName + " to auto tpa you"
+                : allowedName + " is already denied to auto tpa you";
+
+        allower.sendMessage(Text.literal(message)
                 .styled(style -> style
-                        .withColor(Formatting.AQUA))
-                .append(Text.literal(message)
-                        .styled(style -> style
-                                .withColor(Formatting.GREEN))));
+                        .withColor(Formatting.GREEN)));
 
         return 1;
     }
@@ -71,6 +84,11 @@ public class AutoTpaCommands {
 
     private static int showAutoTpaList(ServerPlayerEntity allower) {
         Set<String> allowed = AutoTpaManager.getAllowed(allower);
+
+        if (allowed.isEmpty()) {
+            allower.sendMessage(Text.literal("You have not allowed anyone to auto tpa you"));
+            return -1;
+        }
 
         allower.sendMessage(Text.literal("You have allowed to auto tpa you: ")
                 .append(Text.literal(String.join(", ", allowed))));

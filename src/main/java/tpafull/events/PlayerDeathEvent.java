@@ -9,7 +9,6 @@ import tpafull.managers.LastDeathManager;
 public class PlayerDeathEvent {
     public static void initialize() {
         ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-
             if (entity instanceof ServerPlayerEntity player) {
                 GlobalPos pos = new GlobalPos(player.getServerWorld().getRegistryKey(), new BlockPos(player.getBlockPos()));
                 LastDeathManager.saveLastDeath(player, pos);

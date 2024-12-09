@@ -36,6 +36,10 @@ public class LastDeathCommands {
         player.teleport(LastDeathManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
         LastDeathManager.removeLastDeath(player);
 
+        player.sendMessage(Text.literal("Teleporting to last death...")
+                .styled(style -> style
+                        .withColor(Formatting.GREEN)));
+
         return 1;
     }
 
@@ -48,12 +52,12 @@ public class LastDeathCommands {
             return -1;
         }
 
-        double x = LastDeathManager.getX(player);
-        double y = LastDeathManager.getY(player);
-        double z = LastDeathManager.getZ(player);
+        int x = (int) LastDeathManager.getX(player);
+        int y = (int) LastDeathManager.getY(player);
+        int z = (int) LastDeathManager.getZ(player);
         String world = Objects.requireNonNull(Objects.requireNonNull(LastDeathManager.getWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Last death: " + x + ", " + y + ", " + z + " in " + world));
+        player.sendMessage(Text.literal("Last death is at " + x + ", " + y + ", " + z + " in " + world));
 
         return 1;
     }
