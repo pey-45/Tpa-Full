@@ -120,9 +120,7 @@ public class TpaRequestCommands {
                                         .withColor(Formatting.RED)
                                         .withBold(true)
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpadeny " + sender.getName().getString()))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to reject"))))),
-                false
-        );
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to reject"))))));
 
         sender.sendMessage(Text.literal(mode + " request sent to " + receiver.getName().getString()));
 

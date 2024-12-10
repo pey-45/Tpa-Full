@@ -1,14 +1,12 @@
 package tpafull.managers;
 
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.Nullable;
 import tpafull.data.TpaMode;
 import tpafull.data.TpaRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TpaRequestManager {
@@ -18,14 +16,14 @@ public class TpaRequestManager {
     public static boolean removeRequest(ServerPlayerEntity sender, ServerPlayerEntity target) {
         List<TpaRequest> requests = tpaRequests.get(target);
         if (requests != null) {
-            if (requests.removeIf(request -> request.getSender() == sender)) {
+            if (requests.removeIf(request -> request.sender() == sender)) {
                 return true;
             }
         }
 
         List<TpaRequest> hereRequests = tpaHereRequests.get(target);
         if (hereRequests != null) {
-            return hereRequests.removeIf(request -> request.getSender() == sender);
+            return hereRequests.removeIf(request -> request.sender() == sender);
         }
 
         return false;
@@ -37,7 +35,7 @@ public class TpaRequestManager {
             ServerPlayerEntity target = entry.getKey();
             List<TpaRequest> requests = entry.getValue();
             // For every player, removes every request sent by sender
-            requests.removeIf(request -> request.getSender() == sender);
+            requests.removeIf(request -> request.sender() == sender);
             if (requests.isEmpty()) {
                 tpaRequests.remove(target);
             }
@@ -47,7 +45,7 @@ public class TpaRequestManager {
         for (HashMap.Entry<ServerPlayerEntity, List<TpaRequest>> entry : tpaHereRequests.entrySet()) {
             ServerPlayerEntity target = entry.getKey();
             List<TpaRequest> requests = entry.getValue();
-            requests.removeIf(request -> request.getSender() == sender);
+            requests.removeIf(request -> request.sender() == sender);
             if (requests.isEmpty()) {
                 tpaHereRequests.remove(target);
             }
@@ -67,15 +65,15 @@ public class TpaRequestManager {
 
         if (targetTpaRequests != null) {
             for (TpaRequest request : tpaRequests.get(target)) {
-                if (request.getSender() == sender) {
-                    return request.getMode();
+                if (request.sender() == sender) {
+                    return request.mode();
                 }
             }
         }
         else if (targetTpaHereRequests != null) {
             for (TpaRequest request : tpaHereRequests.get(target)) {
-                if (request.getSender() == sender) {
-                    return request.getMode();
+                if (request.sender() == sender) {
+                    return request.mode();
                 }
             }
         }
@@ -84,10 +82,10 @@ public class TpaRequestManager {
 
     public static void cleanAllRequests(ServerPlayerEntity sender) {
         for (List<TpaRequest> requests : tpaRequests.values()) {
-            requests.removeIf(targetTpaRequest -> targetTpaRequest.getSender() == sender);
+            requests.removeIf(targetTpaRequest -> targetTpaRequest.sender() == sender);
         }
         for (List<TpaRequest> requests : tpaHereRequests.values()) {
-            requests.removeIf(targetTpaRequest -> targetTpaRequest.getSender() == sender);
+            requests.removeIf(targetTpaRequest -> targetTpaRequest.sender() == sender);
         }
     }
 }

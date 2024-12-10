@@ -54,6 +54,6 @@ public class TpaAutoManager {
     }
 
     public static Set<String> getAllowed(ServerPlayerEntity blocker) {
-        return allowedAutoTpa.get(blocker.getName());
+        return allowedAutoTpa.get(blocker.getName().getString());
     }
 }

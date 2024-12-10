@@ -54,7 +54,6 @@ public class TpaBlockManager {
     }
 
     public static Set<String> getBlocks(ServerPlayerEntity blocker) {
-        Set<String> res = tpaBlocks.get(blocker.getName().getString());
-        return res;
+        return tpaBlocks.get(blocker.getName().getString());
     }
 }

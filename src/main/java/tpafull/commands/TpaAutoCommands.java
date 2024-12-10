@@ -54,9 +54,7 @@ public class TpaAutoCommands {
                 ? "Successfully allowed " + allowedName + " to auto tpa you"
                 : allowedName + " is already allowed to auto tpa you";
 
-        allower.sendMessage(Text.literal(message)
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        allower.sendMessage(Text.literal(message));
 
         return 1;
     }
@@ -74,9 +72,7 @@ public class TpaAutoCommands {
                 ? "Successfully denied " + allowedName + " to auto tpa you"
                 : allowedName + " is already denied to auto tpa you";
 
-        allower.sendMessage(Text.literal(message)
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        allower.sendMessage(Text.literal(message));
 
         return 1;
     }
@@ -85,7 +81,7 @@ public class TpaAutoCommands {
     private static int showAutoTpaList(ServerPlayerEntity allower) {
         Set<String> allowed = TpaAutoManager.getAllowed(allower);
 
-        if (allowed.isEmpty()) {
+        if (allowed == null || allowed.isEmpty()) {
             allower.sendMessage(Text.literal("You have not allowed anyone to auto tpa you"));
             return -1;
         }

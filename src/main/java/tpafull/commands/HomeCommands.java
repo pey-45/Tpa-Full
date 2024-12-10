@@ -64,7 +64,7 @@ public class HomeCommands {
 
         String worldString = Objects.requireNonNull(Objects.requireNonNull(HomeManager.getHomeWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Home is at " + x + ", " + y + ", " + z + " in " + worldString));
+        player.sendMessage(Text.literal("Home is at " + x + " " + y + " " + z + " in " + worldString));
 
         return 1;
     }
@@ -92,9 +92,7 @@ public class HomeCommands {
 
         HomeManager.removeHome(player);
 
-        player.sendMessage(Text.literal("Home removed")
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        player.sendMessage(Text.literal("Home removed"));
 
         return 1;
     }

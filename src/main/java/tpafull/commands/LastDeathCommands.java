@@ -59,7 +59,7 @@ public class LastDeathCommands {
 
         String worldToString = Objects.requireNonNull(Objects.requireNonNull(LastDeathManager.getLastDeathWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Last death is at " + x + ", " + y + ", " + z + " in " + worldToString));
+        player.sendMessage(Text.literal("Last death is at " + x + " " + y + " " + z + " in " + worldToString));
 
         return 1;
     }

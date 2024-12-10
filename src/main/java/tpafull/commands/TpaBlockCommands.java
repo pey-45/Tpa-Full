@@ -20,22 +20,22 @@ public class TpaBlockCommands {
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> blockTpa(
                                         Objects.requireNonNull(context.getSource().getPlayer()),
-                                        EntityArgumentType.getPlayer(context, "player").getName().getString()))))
-                .then(CommandManager.literal("offline")
-                        .then(CommandManager.argument("playername", StringArgumentType.word())
-                                .executes(context -> unblockTpa(
-                                        Objects.requireNonNull(context.getSource().getPlayer()),
-                                        StringArgumentType.getString(context, "playername")))))
+                                        EntityArgumentType.getPlayer(context, "player").getName().getString())))
+                        .then(CommandManager.literal("offline")
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> unblockTpa(
+                                                Objects.requireNonNull(context.getSource().getPlayer()),
+                                                StringArgumentType.getString(context, "playername"))))))
                 .then(CommandManager.literal("unblock")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> unblockTpa(
                                         Objects.requireNonNull(context.getSource().getPlayer()),
-                                        EntityArgumentType.getPlayer(context, "player").getName().getString()))
-                                .then(CommandManager.literal("offline")
-                                        .then(CommandManager.argument("playername", StringArgumentType.word())
-                                                .executes(context -> unblockTpa(
-                                                        Objects.requireNonNull(context.getSource().getPlayer()),
-                                                        StringArgumentType.getString(context, "playername")))))))
+                                        EntityArgumentType.getPlayer(context, "player").getName().getString())))
+                        .then(CommandManager.literal("offline")
+                                .then(CommandManager.argument("playername", StringArgumentType.word())
+                                        .executes(context -> unblockTpa(
+                                                Objects.requireNonNull(context.getSource().getPlayer()),
+                                                StringArgumentType.getString(context, "playername"))))))
                 .then(CommandManager.literal("list")
                         .executes(context -> showBlockTpaList(
                                 Objects.requireNonNull(context.getSource().getPlayer())))));
@@ -54,9 +54,7 @@ public class TpaBlockCommands {
                 ? "Successfully blocked " + blockedName
                 : blockedName + " is already blocked";
 
-        blocker.sendMessage(Text.literal(message)
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        blocker.sendMessage(Text.literal(message));
 
         return 1;
     }
@@ -74,9 +72,7 @@ public class TpaBlockCommands {
                 ? "Successfully unblocked " + blockedName
                 : blockedName + " is already unblocked";
 
-        blocker.sendMessage(Text.literal(message)
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        blocker.sendMessage(Text.literal(message));
 
         return 1;
     }
@@ -85,8 +81,8 @@ public class TpaBlockCommands {
     private static int showBlockTpaList(ServerPlayerEntity blocker) {
         Set<String> blocks = TpaBlockManager.getBlocks(blocker);
 
-        if (blocks.isEmpty()) {
-            blocker.sendMessage(Text.literal("You have no blocked players"));
+        if (blocks == null || blocks.isEmpty()) {
+            blocker.sendMessage(Text.literal("You have not blocked anyone"));
             return -1;
         }
 
