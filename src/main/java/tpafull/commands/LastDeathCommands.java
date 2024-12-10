@@ -22,7 +22,7 @@ public class LastDeathCommands {
 
 
     private static int tpLastDeath(ServerPlayerEntity player) {
-        if (LastDeathManager.hasLastDeath(player)) {
+        if (!LastDeathManager.hasNoLastDeath(player)) {
             player.sendMessage(Text.literal("No last death position to teleport to")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
@@ -33,7 +33,8 @@ public class LastDeathCommands {
         double y = LastDeathManager.getY(player);
         double z = LastDeathManager.getZ(player);
 
-        player.teleport(LastDeathManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
+        player.teleport(LastDeathManager.getLastDeathWorld(player), x, y, z, player.getYaw(), player.getPitch());
+
         LastDeathManager.removeLastDeath(player);
 
         player.sendMessage(Text.literal("Teleporting to last death...")
@@ -45,8 +46,8 @@ public class LastDeathCommands {
 
 
     private static int showLastDeath(ServerPlayerEntity player) {
-        if (!LastDeathManager.hasLastDeath(player)) {
-            player.sendMessage(Text.literal("No last death position")
+        if (LastDeathManager.hasNoLastDeath(player)) {
+            player.sendMessage(Text.literal("No last death position to show")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
             return -1;
@@ -55,9 +56,10 @@ public class LastDeathCommands {
         int x = (int) LastDeathManager.getX(player);
         int y = (int) LastDeathManager.getY(player);
         int z = (int) LastDeathManager.getZ(player);
-        String world = Objects.requireNonNull(Objects.requireNonNull(LastDeathManager.getWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Last death is at " + x + ", " + y + ", " + z + " in " + world));
+        String worldToString = Objects.requireNonNull(Objects.requireNonNull(LastDeathManager.getLastDeathWorld(player)).getRegistryKey().getValue().getPath());
+
+        player.sendMessage(Text.literal("Last death is at " + x + ", " + y + ", " + z + " in " + worldToString));
 
         return 1;
     }

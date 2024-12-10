@@ -3,7 +3,6 @@ package tpafull.managers;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
 
@@ -21,7 +20,7 @@ public class LastTpManager {
         return lastTps.containsKey(player);
     }
 
-    public static ServerWorld getWorld(ServerPlayerEntity player) {
+    public static ServerWorld getLastTpWorld(ServerPlayerEntity player) {
         GlobalPos globalPos = lastTps.get(player);
         if (globalPos == null) {
             return null;

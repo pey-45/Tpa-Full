@@ -24,7 +24,7 @@ public class UndoTpCommands {
             return -1;
         }
 
-        player.teleport(LastTpManager.getWorld(player), LastTpManager.getX(player), LastTpManager.getY(player), LastTpManager.getZ(player), player.getYaw(), player.getPitch());
+        player.teleport(LastTpManager.getLastTpWorld(player), LastTpManager.getX(player), LastTpManager.getY(player), LastTpManager.getZ(player), player.getYaw(), player.getPitch());
         LastTpManager.removeLastTp(player);
 
         return 1;

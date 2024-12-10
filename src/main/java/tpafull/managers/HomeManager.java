@@ -12,10 +12,9 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 
 public class HomeManager {
-    private final static HashMap<UUID, GlobalPos> homes = new HashMap<>();
+    private final static HashMap<String, GlobalPos> homes = new HashMap<>();
     private static final File DATA_FILE = new File("config/tpafull/homes.json");
     private static final Gson GSON = new Gson();
 
@@ -39,8 +38,8 @@ public class HomeManager {
         }
 
         try (Reader reader = new FileReader(DATA_FILE)) {
-            Type type = new TypeToken<HashMap<UUID, GlobalPos>>() {}.getType();
-            HashMap<UUID, GlobalPos> loadedData = GSON.fromJson(reader, type);
+            Type type = new TypeToken<HashMap<String, GlobalPos>>() {}.getType();
+            HashMap<String, GlobalPos> loadedData = GSON.fromJson(reader, type);
             if (loadedData != null) {
                 homes.putAll(loadedData);
             }
@@ -50,15 +49,15 @@ public class HomeManager {
     }
 
     public static void setHome(ServerPlayerEntity player, GlobalPos pos) {
-        homes.put(player.getUuid(), pos);
+        homes.put(player.getName().getString(), pos);
     }
 
-    public static boolean hasNotHome(ServerPlayerEntity player) {
-        return !homes.containsKey(player.getUuid());
+    public static boolean hasNoHome(ServerPlayerEntity player) {
+        return !homes.containsKey(player.getName().getString());
     }
 
-    public static ServerWorld getWorld(ServerPlayerEntity player) {
-        GlobalPos globalPos = homes.get(player.getUuid());
+    public static ServerWorld getHomeWorld(ServerPlayerEntity player) {
+        GlobalPos globalPos = homes.get(player.getName().getString());
         if (globalPos == null) {
             return null;
         }
@@ -69,18 +68,18 @@ public class HomeManager {
     }
 
     public static double getX(ServerPlayerEntity player) {
-        return homes.get(player.getUuid()).pos().getX();
+        return homes.get(player.getName().getString()).pos().getX();
     }
 
     public static double getY(ServerPlayerEntity player) {
-        return homes.get(player.getUuid()).pos().getY();
+        return homes.get(player.getName().getString()).pos().getY();
     }
 
     public static double getZ(ServerPlayerEntity player) {
-        return homes.get(player.getUuid()).pos().getZ();
+        return homes.get(player.getName().getString()).pos().getZ();
     }
 
     public static void removeHome(ServerPlayerEntity player) {
-        homes.remove(player.getUuid());
+        homes.remove(player.getName().getString());
     }
 }

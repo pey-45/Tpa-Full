@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class TpaBlockManager {
-    private final static HashMap<UUID, Set<String>> tpaBlocks = new HashMap<>();
+    private final static HashMap<String, Set<String>> tpaBlocks = new HashMap<>();
     private static final File DATA_FILE = new File("config/tpafull/tpa_blocks.json");
     private static final Gson GSON = new Gson();
 
@@ -33,8 +33,8 @@ public class TpaBlockManager {
         }
 
         try (Reader reader = new FileReader(DATA_FILE)) {
-            Type type = new TypeToken<HashMap<UUID, Set<String>>>() {}.getType();
-            HashMap<UUID, Set<String>> loadedData = GSON.fromJson(reader, type);
+            Type type = new TypeToken<HashMap<String, Set<String>>>() {}.getType();
+            HashMap<String, Set<String>> loadedData = GSON.fromJson(reader, type);
             if (loadedData != null) {
                 tpaBlocks.putAll(loadedData);
             }
@@ -44,16 +44,17 @@ public class TpaBlockManager {
     }
 
     public static boolean block(ServerPlayerEntity blocker, String blocked) {
-        Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getUuid(), k -> new HashSet<>());
+        Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getName().getString(), k -> new HashSet<>());
         return currentBlockerBlocks.add(blocked);
     }
 
     public static boolean unblock(ServerPlayerEntity blocker, String blocked) {
-        Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getUuid(), k -> new HashSet<>());
+        Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getName().getString(), k -> new HashSet<>());
         return currentBlockerBlocks.remove(blocked);
     }
 
     public static Set<String> getBlocks(ServerPlayerEntity blocker) {
-        return tpaBlocks.get(blocker.getUuid());
+        Set<String> res = tpaBlocks.get(blocker.getName().getString());
+        return res;
     }
 }

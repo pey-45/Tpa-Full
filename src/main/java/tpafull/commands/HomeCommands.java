@@ -29,7 +29,7 @@ public class HomeCommands {
 
 
     private static int tpHome(ServerPlayerEntity player) {
-        if (HomeManager.hasNotHome(player)) {
+        if (HomeManager.hasNoHome(player)) {
             player.sendMessage(Text.literal("No home set")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
@@ -40,7 +40,7 @@ public class HomeCommands {
         double y = HomeManager.getY(player);
         double z = HomeManager.getZ(player);
 
-        player.teleport(HomeManager.getWorld(player), x, y, z, player.getYaw(), player.getPitch());
+        player.teleport(HomeManager.getHomeWorld(player), x, y, z, player.getYaw(), player.getPitch());
 
         player.sendMessage(Text.literal("Teleporting home...")
                 .styled(style -> style
@@ -51,7 +51,7 @@ public class HomeCommands {
 
 
     private static int showHome(ServerPlayerEntity player) {
-        if (HomeManager.hasNotHome(player)) {
+        if (HomeManager.hasNoHome(player)) {
             player.sendMessage(Text.literal("No home set")
                     .styled(style -> style
                             .withColor(Formatting.RED)));
@@ -61,9 +61,10 @@ public class HomeCommands {
         int x = (int) HomeManager.getX(player);
         int y = (int) HomeManager.getY(player);
         int z = (int) HomeManager.getZ(player);
-        String world = Objects.requireNonNull(Objects.requireNonNull(HomeManager.getWorld(player)).getRegistryKey().getValue().getPath());
 
-        player.sendMessage(Text.literal("Home is at " + x + ", " + y + ", " + z + " in " + world));
+        String worldString = Objects.requireNonNull(Objects.requireNonNull(HomeManager.getHomeWorld(player)).getRegistryKey().getValue().getPath());
+
+        player.sendMessage(Text.literal("Home is at " + x + ", " + y + ", " + z + " in " + worldString));
 
         return 1;
     }
@@ -82,6 +83,13 @@ public class HomeCommands {
     }
 
     private static int removeHome(ServerPlayerEntity player) {
+        if (HomeManager.hasNoHome(player)) {
+            player.sendMessage(Text.literal("No home set already")
+                    .styled(style -> style
+                            .withColor(Formatting.GREEN)));
+            return -1;
+        }
+
         HomeManager.removeHome(player);
 
         player.sendMessage(Text.literal("Home removed")

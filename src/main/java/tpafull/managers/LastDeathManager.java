@@ -3,7 +3,6 @@ package tpafull.managers;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
 
@@ -17,11 +16,11 @@ public class LastDeathManager {
         lastDeaths.put(player, pos);
     }
 
-    public static boolean hasLastDeath(ServerPlayerEntity player) {
-        return lastDeaths.containsKey(player);
+    public static boolean hasNoLastDeath(ServerPlayerEntity player) {
+        return !lastDeaths.containsKey(player);
     }
 
-    public static ServerWorld getWorld(ServerPlayerEntity player) {
+    public static ServerWorld getLastDeathWorld(ServerPlayerEntity player) {
         GlobalPos globalPos = lastDeaths.get(player);
         if (globalPos == null) {
             return null;

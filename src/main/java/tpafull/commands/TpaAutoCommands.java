@@ -8,14 +8,14 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import tpafull.managers.AutoTpaManager;
+import tpafull.managers.TpaAutoManager;
 
 import java.util.Objects;
 import java.util.Set;
 
-public class AutoTpaCommands {
+public class TpaAutoCommands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("autotpa")
+        dispatcher.register(CommandManager.literal("tpaauto")
                 .then(CommandManager.literal("allow")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> allowAutoTpa(
@@ -50,7 +50,7 @@ public class AutoTpaCommands {
             return -1;
         }
 
-        String message = AutoTpaManager.add(allower, allowedName)
+        String message = TpaAutoManager.add(allower, allowedName)
                 ? "Successfully allowed " + allowedName + " to auto tpa you"
                 : allowedName + " is already allowed to auto tpa you";
 
@@ -70,7 +70,7 @@ public class AutoTpaCommands {
             return -1;
         }
 
-        String message = AutoTpaManager.remove(allower, allowedName)
+        String message = TpaAutoManager.remove(allower, allowedName)
                 ? "Successfully denied " + allowedName + " to auto tpa you"
                 : allowedName + " is already denied to auto tpa you";
 
@@ -83,7 +83,7 @@ public class AutoTpaCommands {
 
 
     private static int showAutoTpaList(ServerPlayerEntity allower) {
-        Set<String> allowed = AutoTpaManager.getAllowed(allower);
+        Set<String> allowed = TpaAutoManager.getAllowed(allower);
 
         if (allowed.isEmpty()) {
             allower.sendMessage(Text.literal("You have not allowed anyone to auto tpa you"));

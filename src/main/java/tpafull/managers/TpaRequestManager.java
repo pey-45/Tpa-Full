@@ -8,6 +8,7 @@ import tpafull.data.TpaRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TpaRequestManager {
@@ -60,15 +61,22 @@ public class TpaRequestManager {
     }
 
 
-    public static @Nullable TpaMode getModeFromRequest(ServerPlayerEntity sender, ServerPlayerEntity target) {
-        for (TpaRequest request : tpaRequests.get(target)) {
-            if (request.getSender() == sender) {
-                return request.getMode();
+    public static TpaMode getModeFromRequest(ServerPlayerEntity sender, ServerPlayerEntity target) {
+        List<TpaRequest> targetTpaRequests = tpaRequests.get(target);
+        List<TpaRequest> targetTpaHereRequests = tpaHereRequests.get(target);
+
+        if (targetTpaRequests != null) {
+            for (TpaRequest request : tpaRequests.get(target)) {
+                if (request.getSender() == sender) {
+                    return request.getMode();
+                }
             }
         }
-        for (TpaRequest request : tpaHereRequests.get(target)) {
-            if (request.getSender() == sender) {
-                return request.getMode();
+        else if (targetTpaHereRequests != null) {
+            for (TpaRequest request : tpaHereRequests.get(target)) {
+                if (request.getSender() == sender) {
+                    return request.getMode();
+                }
             }
         }
         return null;

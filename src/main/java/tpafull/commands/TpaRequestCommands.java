@@ -10,12 +10,13 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import tpafull.data.TpaMode;
-import tpafull.managers.AutoTpaManager;
+import tpafull.managers.TpaAutoManager;
 import tpafull.managers.TpaBlockManager;
 import tpafull.managers.TpaRequestManager;
 import tpafull.utils.GlobalScheduler;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class TpaRequestCommands {
@@ -49,19 +50,26 @@ public class TpaRequestCommands {
 
 
     private static int sendTpaRequest(ServerPlayerEntity sender, ServerPlayerEntity receiver, TpaMode mode) {
-        // Verify if not blocked
-        if (TpaBlockManager.getBlocks(receiver).contains(sender.getName().getString())) {
-            sender.sendMessage(Text.literal("You are blocked by ")
+       if (Objects.equals(sender, receiver)) {
+            sender.sendMessage(Text.literal("Try with someone else")
                     .styled(style -> style
-                            .withColor(Formatting.RED))
-                    .append(Text.literal(receiver.getName().getString())
-                            .styled(style -> style
-                                    .withColor(Formatting.AQUA))));
+                            .withColor(Formatting.RED)));
             return -1;
-        }
+       }
 
-        // Teleport if in receiver's auto tpa list
-        if (AutoTpaManager.getAllowed(receiver).contains(sender.getName().getString())) {
+       // Verify if not blocked
+       Set<String> receiverBlocks = TpaBlockManager.getBlocks(receiver);
+       if (receiverBlocks != null && receiverBlocks.contains(sender.getName().getString())) {
+           sender.sendMessage(Text.literal("You are blocked by " + receiver.getName().getString())
+                   .styled(style -> style
+                           .withColor(Formatting.RED)));
+           return -1;
+       }
+
+
+        // Teleport if request is TPA and sender is in receiver's auto tpa list
+        Set<String> receiverAutoTpaers = TpaAutoManager.getAllowed(receiver);
+        if (receiverAutoTpaers != null && receiverAutoTpaers.contains(sender.getName().getString()) && mode == TpaMode.TPA) {
             sender.teleport(receiver.getServerWorld(), receiver.getX(), receiver.getY(), receiver.getZ(), receiver.getYaw(), receiver.getPitch());
 
             sender.sendMessage(Text.literal("Teleporting...")
@@ -72,6 +80,8 @@ public class TpaRequestCommands {
                     .styled(style -> style
                             .withColor(Formatting.AQUA))
                     .append(Text.literal(" automatically teleported to you!")));
+
+            return 1;
         }
 
         // Add new request to the receiver after cleaning any other request by sender
@@ -89,10 +99,10 @@ public class TpaRequestCommands {
                         .styled(style -> style
                                 .withColor(Formatting.RED)));
             }
-        }, 30, TimeUnit.SECONDS);
+        }, 60, TimeUnit.SECONDS);
 
         // Send form to receiver
-        String message = mode == TpaMode.TPA ? " wants to teleport to you (tpa)" : " wants you to teleport to him (tpahere)";
+        String message = mode == TpaMode.TPA ? " wants to teleport to you!" : " wants you to teleport to him!";
         receiver.sendMessage(Text.literal(sender.getName().getString())
                         .styled(style -> style
                                 .withColor(Formatting.AQUA))
@@ -103,21 +113,18 @@ public class TpaRequestCommands {
                                 .styled(style -> style
                                         .withColor(Formatting.GREEN)
                                         .withBold(true)
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept " + sender))
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpaccept " + sender.getName().getString()))
                                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to accept")))))
                         .append(Text.literal("[Deny]")
                                 .styled(style -> style
                                         .withColor(Formatting.RED)
                                         .withBold(true)
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpadeny " + sender))
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tpadeny " + sender.getName().getString()))
                                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to reject"))))),
                 false
         );
 
-        sender.sendMessage(Text.literal(mode + " request sent to ")
-                .append(Text.literal(receiver.getName().getString())
-                        .styled(style -> style
-                                .withColor(Formatting.AQUA))));
+        sender.sendMessage(Text.literal(mode + " request sent to " + receiver.getName().getString()));
 
         return 1;
     }
@@ -136,25 +143,19 @@ public class TpaRequestCommands {
             return -1;
         }
 
-        requester.sendMessage(Text.literal("Request accepted!")
+        requester.sendMessage(Text.literal(acceptor.getName().getString() + " accepted your request!")
                 .styled(style -> style
                         .withColor(Formatting.GREEN)));
 
-        acceptor.sendMessage(Text.literal("Request accepted!")
-                .styled(style -> style
-                        .withColor(Formatting.GREEN)));
+        acceptor.sendMessage(Text.literal("Request accepted"));
 
         // Teleport
         if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPA) {
             requester.teleport(acceptor.getServerWorld(), acceptor.getX(), acceptor.getY(), acceptor.getZ(), acceptor.getYaw(), acceptor.getPitch());
-            requester.sendMessage(Text.literal("Teleporting...")
-                    .styled(style -> style
-                            .withColor(Formatting.GREEN)));
+            requester.sendMessage(Text.literal("Teleporting..."));
         } else if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPAHERE) {
             acceptor.teleport(requester.getServerWorld(), requester.getX(), requester.getY(), requester.getZ(), requester.getYaw(), requester.getPitch());
-            acceptor.sendMessage(Text.literal("Teleporting...")
-                    .styled(style -> style
-                            .withColor(Formatting.GREEN)));
+            acceptor.sendMessage(Text.literal("Teleporting..."));
         }
 
         // Remove the request
@@ -170,13 +171,11 @@ public class TpaRequestCommands {
             return -1;
         }
 
-        requester.sendMessage(Text.literal("Request rejected")
+        requester.sendMessage(Text.literal(acceptor.getName().getString() + " rejected your request")
                 .styled(style -> style
                         .withColor(Formatting.RED)));
 
-        acceptor.sendMessage(Text.literal("Request rejected")
-                .styled(style -> style
-                        .withColor(Formatting.RED)));
+        acceptor.sendMessage(Text.literal("Request rejected"));
 
         return 1;
     }

@@ -13,9 +13,9 @@ import tpafull.managers.TpaBlockManager;
 import java.util.Objects;
 import java.util.Set;
 
-public class BlockTpaCommands {
+public class TpaBlockCommands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("blocktpa")
+        dispatcher.register(CommandManager.literal("tpablock")
                 .then(CommandManager.literal("block")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
                                 .executes(context -> blockTpa(
@@ -86,7 +86,7 @@ public class BlockTpaCommands {
         Set<String> blocks = TpaBlockManager.getBlocks(blocker);
 
         if (blocks.isEmpty()) {
-            blocker.sendMessage(Text.literal("You have not blocked anyone"));
+            blocker.sendMessage(Text.literal("You have no blocked players"));
             return -1;
         }
 

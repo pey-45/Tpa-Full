@@ -8,8 +8,8 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class AutoTpaManager {
-    private final static HashMap<UUID, Set<String>> allowedAutoTpa = new HashMap<>();
+public class TpaAutoManager {
+    private final static HashMap<String, Set<String>> allowedAutoTpa = new HashMap<>();
     private static final File DATA_FILE = new File("config/tpafull/auto_tpa_allowed.json");
     private static final Gson GSON = new Gson();
 
@@ -33,8 +33,8 @@ public class AutoTpaManager {
         }
 
         try (Reader reader = new FileReader(DATA_FILE)) {
-            Type type = new TypeToken<HashMap<UUID, Set<String>>>() {}.getType();
-            HashMap<UUID, Set<String>> loadedData = GSON.fromJson(reader, type);
+            Type type = new TypeToken<HashMap<String, Set<String>>>() {}.getType();
+            HashMap<String, Set<String>> loadedData = GSON.fromJson(reader, type);
             if (loadedData != null) {
                 allowedAutoTpa.putAll(loadedData);
             }
@@ -44,16 +44,16 @@ public class AutoTpaManager {
     }
 
     public static boolean add(ServerPlayerEntity sender, String target) {
-        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getUuid(), k -> new HashSet<>());
+        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getName().getString(), k -> new HashSet<>());
         return currentPlayerAutoTpas.add(target);
     }
 
     public static boolean remove(ServerPlayerEntity sender, String target) {
-        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getUuid(), k -> new HashSet<>());
+        Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getName().getString(), k -> new HashSet<>());
         return currentPlayerAutoTpas.remove(target);
     }
 
     public static Set<String> getAllowed(ServerPlayerEntity blocker) {
-        return allowedAutoTpa.get(blocker.getUuid());
+        return allowedAutoTpa.get(blocker.getName());
     }
 }
