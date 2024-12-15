@@ -45,11 +45,13 @@ public class TpaAutoManager {
 
     public static boolean add(ServerPlayerEntity sender, String target) {
         Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getName().getString(), k -> new HashSet<>());
+        saveData();
         return currentPlayerAutoTpas.add(target);
     }
 
     public static boolean remove(ServerPlayerEntity sender, String target) {
         Set<String> currentPlayerAutoTpas = allowedAutoTpa.computeIfAbsent(sender.getName().getString(), k -> new HashSet<>());
+        saveData();
         return currentPlayerAutoTpas.remove(target);
     }
 

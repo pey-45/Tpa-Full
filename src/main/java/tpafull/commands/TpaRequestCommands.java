@@ -9,7 +9,9 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.GlobalPos;
 import tpafull.data.TpaMode;
+import tpafull.managers.UndoTpManager;
 import tpafull.managers.TpaAutoManager;
 import tpafull.managers.TpaBlockManager;
 import tpafull.managers.TpaRequestManager;
@@ -70,6 +72,7 @@ public class TpaRequestCommands {
         // Teleport if request is TPA and sender is in receiver's auto tpa list
         Set<String> receiverAutoTpaers = TpaAutoManager.getAllowed(receiver);
         if (receiverAutoTpaers != null && receiverAutoTpaers.contains(sender.getName().getString()) && mode == TpaMode.TPA) {
+            UndoTpManager.saveLastTp(receiver, GlobalPos.create(receiver.getServerWorld().getRegistryKey(), receiver.getBlockPos()));
             sender.teleport(receiver.getServerWorld(), receiver.getX(), receiver.getY(), receiver.getZ(), receiver.getYaw(), receiver.getPitch());
 
             sender.sendMessage(Text.literal("Teleporting...")
@@ -149,9 +152,11 @@ public class TpaRequestCommands {
 
         // Teleport
         if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPA) {
+            UndoTpManager.saveLastTp(acceptor, GlobalPos.create(acceptor.getServerWorld().getRegistryKey(), acceptor.getBlockPos()));
             requester.teleport(acceptor.getServerWorld(), acceptor.getX(), acceptor.getY(), acceptor.getZ(), acceptor.getYaw(), acceptor.getPitch());
             requester.sendMessage(Text.literal("Teleporting..."));
         } else if (TpaRequestManager.getModeFromRequest(requester, acceptor) == TpaMode.TPAHERE) {
+            UndoTpManager.saveLastTp(requester, GlobalPos.create(requester.getServerWorld().getRegistryKey(), requester.getBlockPos()));
             acceptor.teleport(requester.getServerWorld(), requester.getX(), requester.getY(), requester.getZ(), requester.getYaw(), requester.getPitch());
             acceptor.sendMessage(Text.literal("Teleporting..."));
         }

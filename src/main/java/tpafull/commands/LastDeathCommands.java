@@ -6,7 +6,9 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.GlobalPos;
 import tpafull.managers.LastDeathManager;
+import tpafull.managers.UndoTpManager;
 
 import java.util.Objects;
 
@@ -33,6 +35,7 @@ public class LastDeathCommands {
         double y = LastDeathManager.getY(player);
         double z = LastDeathManager.getZ(player);
 
+        UndoTpManager.saveLastTp(player, GlobalPos.create(player.getServerWorld().getRegistryKey(), player.getBlockPos()));
         player.teleport(LastDeathManager.getLastDeathWorld(player), x, y, z, player.getYaw(), player.getPitch());
 
         LastDeathManager.removeLastDeath(player);

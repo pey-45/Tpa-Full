@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.GlobalPos;
 import tpafull.managers.HomeManager;
+import tpafull.managers.UndoTpManager;
 
 import java.util.Objects;
 
@@ -40,6 +41,7 @@ public class HomeCommands {
         double y = HomeManager.getY(player);
         double z = HomeManager.getZ(player);
 
+        UndoTpManager.saveLastTp(player, GlobalPos.create(player.getServerWorld().getRegistryKey(), player.getBlockPos()));
         player.teleport(HomeManager.getHomeWorld(player), x, y, z, player.getYaw(), player.getPitch());
 
         player.sendMessage(Text.literal("Teleporting home...")

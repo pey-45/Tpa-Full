@@ -9,15 +9,15 @@ import net.minecraft.world.World;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LastTpManager {
+public class UndoTpManager {
     private static final ConcurrentHashMap<ServerPlayerEntity, GlobalPos> lastTps = new ConcurrentHashMap<>();
 
     public static void saveLastTp(ServerPlayerEntity player, GlobalPos pos) {
         lastTps.put(player, pos);
     }
 
-    public static boolean hasLastTp(ServerPlayerEntity player) {
-        return lastTps.containsKey(player);
+    public static boolean hasNoLastTp(ServerPlayerEntity player) {
+        return !lastTps.containsKey(player);
     }
 
     public static ServerWorld getLastTpWorld(ServerPlayerEntity player) {

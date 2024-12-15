@@ -10,9 +10,6 @@ public class ServerStoppedEvent {
     public static void initialize() {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             GlobalScheduler.shutdown();
-            HomeManager.saveData();
-            TpaAutoManager.saveData();
-            TpaBlockManager.saveData();
         });
     }
 }

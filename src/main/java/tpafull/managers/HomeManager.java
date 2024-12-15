@@ -50,6 +50,7 @@ public class HomeManager {
 
     public static void setHome(ServerPlayerEntity player, GlobalPos pos) {
         homes.put(player.getName().getString(), pos);
+        saveData();
     }
 
     public static boolean hasNoHome(ServerPlayerEntity player) {
@@ -81,5 +82,6 @@ public class HomeManager {
 
     public static void removeHome(ServerPlayerEntity player) {
         homes.remove(player.getName().getString());
+        saveData();
     }
 }

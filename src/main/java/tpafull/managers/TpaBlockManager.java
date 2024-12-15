@@ -45,11 +45,13 @@ public class TpaBlockManager {
 
     public static boolean block(ServerPlayerEntity blocker, String blocked) {
         Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getName().getString(), k -> new HashSet<>());
+        saveData();
         return currentBlockerBlocks.add(blocked);
     }
 
     public static boolean unblock(ServerPlayerEntity blocker, String blocked) {
         Set<String> currentBlockerBlocks = tpaBlocks.computeIfAbsent(blocker.getName().getString(), k -> new HashSet<>());
+        saveData();
         return currentBlockerBlocks.remove(blocked);
     }
 
